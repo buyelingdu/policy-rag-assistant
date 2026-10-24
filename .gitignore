@@ -1,0 +1,27 @@
+# ===== 密钥：绝不提交 =====
+backend/.env
+
+# ===== 本地索引与运行数据（部署后可重建） =====
+backend/chroma_db/
+backend/data/
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ===== 系统/编辑器 =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===== 本地文件与个人文档：绝不发布 =====
+*.docx
+*.zip
+*.rar
+*.mp4
+_build/
+_docwork/

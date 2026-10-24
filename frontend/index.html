@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<!--
+  政策通 · 中小企业政策助手 —— 单页应用入口
+  阶段0：静态 UI 框架（假数据演示界面效果）
+  结构：顶部栏 / 主区（左=聊天区，右=溯源侧边栏）/ 文档管理弹窗
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>政策通 · 中小企业政策助手</title>
+  <link rel="stylesheet" href="style.css?v=20261022b" />
+</head>
+<body>
+
+  <!-- ========== 顶部栏（56px 高，底部细分割线） ========== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <!-- 左侧：Logo + 产品名 -->
+      <div class="brand">
+        <!-- Logo：简洁线性图标（文档 + 对勾），表示"有出处的政策文档" -->
+        <svg class="brand-logo" viewBox="0 0 24 24" width="26" height="26" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" />
+          <path d="M9 13l2 2 4-4" />
+        </svg>
+        <span class="brand-name">政策通<span class="brand-sub"> · 中小企业政策助手</span></span>
+      </div>
+
+      <!-- 右侧：操作按钮 -->
+      <div class="topbar-actions">
+        <!-- 数据看板入口：累计提问 / 高频问题 / 反馈 / 文档数 -->
+        <button class="btn btn-ghost" id="statsBtn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 3v18h18" /><path d="M7 15l4-4 3 3 5-6" />
+          </svg>
+          数据看板
+        </button>
+        <!-- 政策匹配入口：填企业画像 → AI 推荐适用政策 -->
+        <button class="btn btn-ghost" id="matchBtn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>
+          政策匹配
+        </button>
+        <!-- 文档管理入口（阶段1 接入上传功能，当前为占位弹窗） -->
+        <button class="btn btn-ghost" id="docManagerBtn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          文档管理
+        </button>
+        <!-- 新建会话 -->
+        <button class="btn btn-primary" id="newChatBtn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          新建会话
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== 主区：左右分栏（左 65% 聊天区 / 右 35% 溯源侧边栏） ========== -->
+  <main class="layout">
+
+    <!-- 左栏：聊天区 -->
+    <section class="chat-panel" aria-label="聊天区">
+      <!-- 消息列表（由 app.js 渲染） -->
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <!-- 空状态：无会话时显示（新建会话后出现） -->
+      <div class="empty-state" id="emptyState" hidden>
+        <svg class="empty-illustration" viewBox="0 0 72 72" width="72" height="72" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="12" width="34" height="44" rx="6" />
+          <path d="M18 24h14M18 32h14M18 40h8" />
+          <circle cx="52" cy="50" r="11" />
+          <path d="M46 50l4 4 8-8" />
+        </svg>
+        <h2>开始你的政策咨询</h2>
+        <p>上传政策文档后，向助手提问，例如"我们县小微企业能申请哪些税收减免？"<br />
+           每条回答都会标注来源文件与页码，点击引用即可查看原文。</p>
+        <!-- 示例问题快捷按钮（JS 渲染） -->
+        <div class="sample-questions" id="sampleQuestions"></div>
+        
+      </div>
+
+      <!-- 底部输入区：固定在聊天区底部 -->
+      <div class="chat-input-bar">
+        <textarea id="chatInput" rows="1"
+                  placeholder="输入你的问题，例如：小微企业能申请哪些创业补贴？"
+                  autocomplete="off"></textarea>
+        <button class="btn btn-primary btn-send" id="sendBtn" type="button">
+          发送
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 2L11 13" />
+            <path d="M22 2l-7 20-4-9-9-4z" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- 右栏：溯源侧边栏（默认显示占位，点击引用卡片后展示原文） -->
+    <aside class="source-panel" id="sourcePanel" aria-label="引用溯源">
+
+      <!-- 占位态：未查看任何引用时 -->
+      <div class="source-placeholder" id="sourcePlaceholder">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+        </svg>
+        <p>点击左侧引用卡片<br />查看原文出处</p>
+      </div>
+
+      <!-- 详情态：JS 填充（文件名 + 页码 + 原文段落 + 高亮命中段） -->
+      <div class="source-detail" id="sourceDetail" hidden></div>
+    </aside>
+
+    <!-- 移动端抽屉遮罩（<768px 时点击关闭侧边栏） -->
+    <div class="drawer-mask" id="drawerMask" hidden></div>
+  </main>
+
+  <!-- ========== 文档管理弹窗（阶段1 接入上传与索引，当前占位） ========== -->
+  <div class="modal-overlay" id="docModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="文档管理">
+      <div class="modal-header">
+        <h3>文档管理</h3>
+        <button class="icon-btn" id="closeDocModalBtn" type="button" aria-label="关闭">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- 上传拖拽区：点击选择 / 拖拽文件进入 -->
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M7 8l5-5 5 5" />
+            <path d="M12 3v12" />
+          </svg>
+          <p><b>点击选择</b>，或把 PDF / Word 文件拖到这里</p>
+          <span class="drop-hint">支持 .pdf / .docx · 上传后自动解析、切分并向量化入库</span>
+          <!-- 隐藏的文件选择框，由 dropZone 触发 -->
+          <input type="file" id="fileInput" accept=".pdf,.docx" multiple hidden />
+        </div>
+
+        <!-- 上传状态条（上传中 / 成功 / 失败，默认隐藏） -->
+        <div class="upload-status" id="uploadStatus" hidden></div>
+
+        <!-- 已索引文档列表 -->
+        <div class="doc-list-title">已索引文档</div>
+        <div class="doc-list" id="docList"></div>
+        <div class="doc-empty" id="docEmpty" hidden>暂无文档，请先上传政策文件</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 政策匹配弹窗：填写企业画像，AI 推荐适用政策 ========== -->
+  <div class="modal-overlay" id="matchModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="政策匹配">
+      <div class="modal-header">
+        <h3>政策匹配</h3>
+        <button class="icon-btn" id="closeMatchModalBtn" type="button" aria-label="关闭">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="match-tip">填写企业基本情况，AI 将从已索引政策中推荐适用条款，并逐条说明匹配理由。</p>
+        <div class="form-grid">
+          <label class="form-field">
+            <span>所属行业</span>
+            <select id="mIndustry">
+              <option value="">请选择</option>
+              <option>制造业</option>
+              <option>批发零售</option>
+              <option>餐饮住宿</option>
+              <option>科技信息服务</option>
+              <option>建筑施工</option>
+              <option>农林牧渔</option>
+              <option>其他</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>企业规模</span>
+            <select id="mSize">
+              <option value="">请选择</option>
+              <option>微型企业</option>
+              <option>小型企业</option>
+              <option>中型企业</option>
+              <option>大型企业</option>
+            </select>
+          </label>
+          <label class="form-field form-wide">
+            <span>所在地区（市 / 县）</span>
+            <input id="mRegion" type="text" placeholder="如：银川市贺兰县" />
+          </label>
+          <label class="form-field">
+            <span>成立年限</span>
+            <select id="mYears">
+              <option value="">请选择</option>
+              <option>1年以下</option>
+              <option>1-3年</option>
+              <option>3-5年</option>
+              <option>5年以上</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>主要诉求</span>
+            <select id="mNeed">
+              <option value="">请选择</option>
+              <option>融资贷款</option>
+              <option>税收减免</option>
+              <option>创业补贴</option>
+              <option>人才用工</option>
+              <option>场地支持</option>
+              <option>其他</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="cancelMatchBtn" type="button">取消</button>
+          <button class="btn btn-primary" id="submitMatchBtn" type="button">开始匹配</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 数据看板弹窗：累计提问 / 高频问题Top5 / 反馈 / 文档数 ========== -->
+  <div class="modal-overlay" id="statsModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="数据看板">
+      <div class="modal-header">
+        <h3>数据看板</h3>
+        <button class="icon-btn" id="closeStatsModalBtn" type="button" aria-label="关闭">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-num" id="statQuestions">0</div>
+            <div class="stat-label">累计提问</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statDocs">0</div>
+            <div class="stat-label">已索引文档</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statUseful">0</div>
+            <div class="stat-label">有用反馈</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statUseless">0</div>
+            <div class="stat-label">无用反馈</div>
+          </div>
+        </div>
+
+        <div class="doc-list-title">高频问题 Top 5</div>
+        <div id="topQuestions" class="top-list"></div>
+        <div id="statsEmpty" class="doc-empty" hidden>暂无提问数据，先去问几个问题吧</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 后端地址配置：本地开发留空即可（自动用 http://127.0.0.1:8000）；
+       部署到 Render 后，把下面引号里改成你的后端地址，如 https://your-app.onrender.com -->
+  <script>window.APP_API_BASE = '';</script>
+  <script src="app.js?v=20261022b"></script>
+</body>
+</html>

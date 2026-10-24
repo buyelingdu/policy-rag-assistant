@@ -1,0 +1,16 @@
+# 政策通后端依赖（阶段1）
+# 安装：pip install -r requirements.txt
+
+# --- Web 框架（阶段0） ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-dotenv>=1.0
+
+# --- 阶段1：文档解析与向量库 ---
+pypdf>=4.0            # PDF 文字提取（带页码）
+python-docx>=1.1      # Word(.docx) 段落/标题解析
+python-multipart>=0.0.9  # FastAPI 文件上传(FormData)必需
+chromadb>=0.5         # 本地持久化向量库（当前为占位本地向量，在线中文向量后续替换）
+
+# --- 阶段2：DeepSeek 对话（OpenAI 兼容 SDK） ---
+openai>=1.40         # DeepSeek 兼容 OpenAI 接口，SSE 流式
