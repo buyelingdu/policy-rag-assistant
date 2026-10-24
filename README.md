@@ -23,7 +23,7 @@
 ## 二、目录结构
 
 ```
-new-chat/
+policy-rag-assistant/
 ├── backend/                  # 后端
 │   ├── main.py               # FastAPI 入口：上传/问答/匹配/反馈/统计接口，SSE 流式
 │   ├── parser.py             # PDF/Word 解析 + 按 500 字切分（带页码/章节元数据）
@@ -33,8 +33,7 @@ new-chat/
 │   ├── llm.py                # DeepSeek 流式 / 非流式客户端（单例）
 │   ├── stats.py               # 提问计数 / 反馈 / 看板统计（JSONL 本地存储）
 │   ├── requirements.txt      # 后端依赖
-│   ├── .env.example          # 环境变量模板（复制为 .env 后填写）
-│   └── .env                  # 真实密钥（私有，不要提交 Git）
+│   └── .env.example          # 环境变量模板（复制为 .env 后填写）
 ├── frontend/                 # 前端（纯静态，无构建）
 │   ├── index.html            # 页面结构 + 后端地址配置位
 │   ├── style.css            # 样式（白底 / 沉稳蓝 #2563EB / 淡黄高亮 #FEF3C7）
