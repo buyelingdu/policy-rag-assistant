@@ -1,5 +1,11 @@
 # 政策通 · 中小企业政策助手
 
+> **Policy Assistant · RAG-based Policy Helper for County SMEs**
+>
+> A vertical RAG assistant with **answer traceability**: upload policy documents, ask questions in natural language, and get answers cited with file & page numbers. Click any citation to view the original text with the matching passage highlighted.
+>
+> Built with FastAPI + Chroma + DeepSeek + vanilla HTML/CSS/JS. Works for any vertical scenario — just replace the knowledge base and sample questions.
+
 一个「答案可溯源」的垂直场景 RAG 知识助手：上传政策文档后，用自然语言提问，AI 基于文档内容回答，**每条回答都标注来源文件 + 页码/章节，点击可查看原文并高亮命中片段**。
 
 代码结构通用：换到别的垂直场景（如"农业补贴助手""园区招商政策助手"），只需替换知识库文档和首页示例问题，代码不用改。
