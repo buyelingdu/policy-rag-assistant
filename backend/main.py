@@ -264,10 +264,11 @@ def chat_stream(req: ChatRequest):
                 yield sse_packet({"type": "error", "message": f"回答生成失败：{e}"})
                 return
 
-        # 5) 双判据才发引用卡片：检索距离达标，且模型没有明确说“资料未涉及/未找到”。
-        #    单靠距离会漏过“外省政策”这类词面相近但地区错配的问题（距离偏近却无依据），
-        #    因此再用模型最终拒答措辞兜底；拒答时全程不发卡，不闪现、不误挂无关出处。
-        if retriever.has_evidence(citations) and not is_no_evidence(full_text):
+        # 5) 发引用卡片：只要模型没有明确说“资料未涉及/未找到”式拒答，
+        #    就说明它是依据召回片段给出了实质答案，应展示出处卡片供溯源。
+        #    不再用固定距离阈值卡发卡（0.30 阈值会误杀“答案实质但距离偏高”的问题，
+        #    如口语化/复合提问），拒答时全程不发卡，不闪现、不误挂无关出处。
+        if not is_no_evidence(full_text):
             yield sse_packet({"type": "citations", "items": citations})
 
         yield sse_packet({"type": "done"})
@@ -338,8 +339,9 @@ def match_policies(req: MatchRequest):
                 yield sse_packet({"type": "error", "message": f"推荐生成失败：{e}"})
                 return
 
-        # 距离达标且模型未明确说“暂未找到匹配”才发卡片，无匹配项不展示无关出处
-        if retriever.has_evidence(citations) and not is_no_evidence(full_text):
+        # 模型未明确说“暂未找到匹配”就发卡片：说明它给出了实质推荐，
+        # 卡片即推荐所依据的资料片段，供核对溯源；无匹配项（拒答措辞）不发无关出处
+        if not is_no_evidence(full_text):
             yield sse_packet({"type": "citations", "items": citations})
 
         yield sse_packet({"type": "done"})
